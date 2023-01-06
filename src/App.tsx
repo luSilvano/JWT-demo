@@ -1,28 +1,39 @@
 
-import React from 'react'
+import { useContext } from 'react'
 import './App.css'
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
 import { Home } from './pages/Home';
 import { Login } from './pages/Login';
-import { Register } from './pages/Register';
 import { Profile } from './pages/Profile';
+import { RequireAuth } from './contexts/Auth/RequireAuth';
+import { AuthContext } from './contexts/Auth/AuthContext';
 
 function App() {
+  const auth = useContext(AuthContext)
+
+  async function handleLogout() {
+    await auth.signout()
+    window.location.href = window.location.href
+  }
+
   return (
     <div className="App">
       <header>
         <h1>Header</h1>
-        <hr />
+        <nav>
+          <Link to='/'>Home</Link>
+          <Link to='/login'>Login</Link>
+          <Link to='/user'>Profile</Link>
+          {auth.user && <button onClick={handleLogout}>Sair</button>}
+        </nav>
       </header>
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Home />}></Route>
-          <Route path='/login' element={<Login />}></Route>
-          <Route path='/register' element={<Register />}></Route>
-          <Route path='/user' element={<Profile />}></Route>
-        </Routes>
-      </BrowserRouter>
+      <hr />
+      <Routes>
+        <Route path='/' element={<Home />}></Route>
+        <Route path='/login' element={<Login />}></Route>
+        <Route path='/user' element={<RequireAuth><Profile /></RequireAuth>}></Route>
+      </Routes>
     </div>
   );
 }
